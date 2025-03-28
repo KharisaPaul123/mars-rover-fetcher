@@ -1,0 +1,5 @@
+FROM openjdk:17
+WORKDIR /app
+COPY . .
+RUN javac -d bin $(find . -name "*.java")
+CMD ["java", "-cp", "bin", "com.marsrover.app.MarsRoverImageFetcher"]
