@@ -15,6 +15,14 @@
     </properties>
 
     <dependencies>
+        <!-- JUnit 4 Dependency -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.13.2</version>
+            <scope>test</scope>
+        </dependency>
+
         <!-- JSON Parsing Library (Gson) -->
         <dependency>
             <groupId>com.google.code.gson</groupId>
@@ -33,14 +41,14 @@
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-            <version>2.15.2</version> <!-- Updated to latest stable version -->
+            <version>2.15.2</version>
         </dependency>
 
         <!-- Commons Codec (for secure encoding and decoding) -->
         <dependency>
             <groupId>commons-codec</groupId>
             <artifactId>commons-codec</artifactId>
-            <version>1.15</version> <!-- Updated to latest stable version -->
+            <version>1.15</version>
         </dependency>
     </dependencies>
 
@@ -50,5 +58,4 @@
             <url>https://repo.maven.apache.org/maven2</url>
         </repository>
     </repositories>
-
 </project>
