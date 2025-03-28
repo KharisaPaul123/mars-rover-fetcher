@@ -1,5 +1,6 @@
-**Mars Rover Image Fetcher**
+# Mars Rover Image Fetcher
 
+## Description
 This project uses the NASA API to download images taken by Mars rovers on specified dates, then stores them locally. It was developed in Java to fulfill the given exercise requirements.
 
 **Task Overview**
@@ -30,3 +31,16 @@ Include relevant documentation (README.md, etc.) in the repository.
 Bonus 1: Unit tests, static analysis, performance tests, or any other best practices.
 
 Bonus 2: Application should run in Docker.
+
+
+## How to Run
+1. Clone this repository:
+   
+   git clone https://github.com/KharisaPaul123/mars-rover.git
+   cd mars-rover
+
+2. Compile and run:
+   
+   javac -d bin $(find . -name "*.java")
+   java -cp bin com.marsrover.app.MarsRoverImageFetcher
+
