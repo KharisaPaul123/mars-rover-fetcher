@@ -5,7 +5,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 public class ImageDownloader {
-    public static void downloadImage(String imageUrl) {
+    public static void downloadImage(String imageUrl, String newFileName) {
         try {
             File directory = new File("images");
             if (!directory.exists()) {
@@ -34,8 +34,7 @@ public class ImageDownloader {
                 return;
             }
 
-            String fileName = imageUrl.substring(imageUrl.lastIndexOf("/") + 1);
-            File outputFile = new File(directory, fileName);
+            File outputFile = new File(directory, newFileName);
 
             try (BufferedInputStream inputStream = new BufferedInputStream(connection.getInputStream());
                  FileOutputStream fileOutputStream = new FileOutputStream(outputFile);
