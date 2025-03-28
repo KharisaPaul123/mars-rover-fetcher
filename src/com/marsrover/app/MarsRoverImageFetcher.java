@@ -92,10 +92,7 @@ public class MarsRoverImageFetcher {
         return dates;
     }
 
-<<<<<<< HEAD
-=======
     // Step 2: Format the date to YYYY-MM-DD
->>>>>>> b75829ffabf1c313a35e20929064fa178656e07a
     public static String formatDate(String date) {
         SimpleDateFormat inputFormat = null;
         SimpleDateFormat outputFormat = new SimpleDateFormat("yyyy-MM-dd");
@@ -111,7 +108,6 @@ public class MarsRoverImageFetcher {
 
         try {
             if (inputFormat != null) {
-<<<<<<< HEAD
                 // First, parse the input date string
                 Date parsedDate = inputFormat.parse(date);
 
@@ -134,24 +130,14 @@ public class MarsRoverImageFetcher {
 
                 // Return the valid formatted date
                 return outputFormat.format(parsedDate);
-=======
-                return outputFormat.format(inputFormat.parse(date));
->>>>>>> b75829ffabf1c313a35e20929064fa178656e07a
             }
         } catch (ParseException e) {
             e.printStackTrace();
         }
 
-<<<<<<< HEAD
         return "";  // Return empty string for unrecognized formats or invalid date
     }
 
-
-=======
-        return "";  // Return empty string for unrecognized formats
-    }
-
->>>>>>> b75829ffabf1c313a35e20929064fa178656e07a
     // Step 3: Generate filenames with an index for each image
     public static String generateFileName(String date, Map<String, Integer> dateImageCount) {
         int count = dateImageCount.getOrDefault(date, 0) + 1;
