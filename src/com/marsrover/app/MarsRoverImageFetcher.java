@@ -1,62 +1,76 @@
 package com.marsrover.app;
 
 import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.List;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class MarsRoverImageFetcher {
+
     public static void main(String[] args) {
-        // Read the dates from the file
-        List<String> dates = DateReader.readDates("dates.txt");
+        // Step 1: Read the dates from the file
+        List<String> dates = readDatesFromFile("dates.txt");
 
+        // Step 2: Convert dates from 'dates.txt' to YYYY-MM-DD format
+        Set<String> formattedDates = new HashSet<>();
         for (String date : dates) {
-            // Convert the Earth date to sol (for now, use a placeholder sol value)
-            int sol = convertDateToSol(date);  // You can implement this later with actual conversion logic
+            String formattedDate = formatDate(date);
+            if (!formattedDate.isEmpty()) {
+                formattedDates.add(formattedDate);
+            } else {
+                System.out.println("❌ Invalid date format: " + date); // Log invalid date
+            }
+        }
 
-            // Format the URL with the sol value
-            String apiUrl = "https://api.nasa.gov/mars-photos/api/v1/rovers/curiosity/photos?sol=" + sol + "&api_key=IYmPGwgwWHtHoOSIBbRuTmC7rVgiux1UAvqI5Uhr";
+        // Step 3: For each valid date, process the images from NASA API
+        Map<String, Integer> dateImageCount = new HashMap<>();  // Track image numbering for each date
+
+        for (String date : formattedDates) {
+            // Step 4: Fetch images from NASA API based on the date
+            String apiUrl = "https://api.nasa.gov/mars-photos/api/v1/rovers/curiosity/photos?earth_date=" + date + "&api_key=IYmPGwgwWHtHoOSIBbRuTmC7rVgiux1UAvqI5Uhr";
 
             try {
-                // Create a URL object and open a connection
                 URL url = new URL(apiUrl);
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-
-                // Set the request method to GET
                 connection.setRequestMethod("GET");
-                connection.setConnectTimeout(5000);  // Set timeout in milliseconds
-                connection.setReadTimeout(5000);     // Set read timeout in milliseconds
 
-                // Get the response code
                 int status = connection.getResponseCode();
                 if (status == HttpURLConnection.HTTP_OK) {
-                    // Read the response
                     BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-                    String inputLine;
                     StringBuilder response = new StringBuilder();
+                    String inputLine;
                     while ((inputLine = in.readLine()) != null) {
                         response.append(inputLine);
                     }
                     in.close();
 
-                    // Convert the JSON response to a Java object
+                    // Step 5: Parse JSON response
                     ObjectMapper mapper = new ObjectMapper();
                     JsonNode rootNode = mapper.readTree(response.toString());
-
-                    // Extract and process image URLs
                     JsonNode photos = rootNode.path("photos");
+
+                    if (photos.isEmpty()) {
+                        System.out.println("No photos found for date: " + date);
+                    }
+
+                    // Step 6: Process each photo
                     for (JsonNode photo : photos) {
                         String imageUrl = photo.path("img_src").asText();
-                        System.out.println("Image URL: " + imageUrl);
+                        String earthDate = photo.path("earth_date").asText();
+                        String newFileName = generateFileName(date, dateImageCount);
 
-                        // Call the downloadImage method to save the image locally
-                        ImageDownloader.downloadImage(imageUrl);
+                        // Step 7: Download the image
+                        System.out.println("Downloading image: " + newFileName);
+                        ImageDownloader.downloadImage(imageUrl, newFileName);
                     }
                 } else {
-                    System.out.println("HTTP request failed with status: " + status);
+                    System.out.println("Failed to fetch data. HTTP code: " + status);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -64,14 +78,51 @@ public class MarsRoverImageFetcher {
         }
     }
 
-    // Placeholder method for converting Earth date to Sol (you can implement actual conversion later)
-    private static int convertDateToSol(String date) {
-        // For now, return a dummy sol value
-        return 1000;
+    // Step 1: Read dates from the text file
+    private static List<String> readDatesFromFile(String filename) {
+        List<String> dates = new ArrayList<>();
+        try (BufferedReader br = new BufferedReader(new FileReader(filename))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                dates.add(line.trim());  // Add each date from the file
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return dates;
+    }
+
+    // Step 2: Format the date to YYYY-MM-DD
+    public static String formatDate(String date) {
+        SimpleDateFormat inputFormat = null;
+        SimpleDateFormat outputFormat = new SimpleDateFormat("yyyy-MM-dd");
+
+        // Match different formats in the input file
+        if (date.matches("\\d{2}/\\d{2}/\\d{2}")) { // MM/DD/YY
+            inputFormat = new SimpleDateFormat("MM/dd/yy");
+        } else if (date.matches("[A-Za-z]+ \\d{1,2}, \\d{4}")) { // Month DD, YYYY
+            inputFormat = new SimpleDateFormat("MMMM d, yyyy", Locale.ENGLISH);
+        } else if (date.matches("[A-Za-z]{3}-\\d{2}-\\d{4}")) { // Mon-DD-YYYY
+            inputFormat = new SimpleDateFormat("MMM-dd-yyyy", Locale.ENGLISH);
+        }
+
+        try {
+            if (inputFormat != null) {
+                return outputFormat.format(inputFormat.parse(date));
+            }
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        return "";  // Return empty string for unrecognized formats
+    }
+
+    // Step 3: Generate filenames with an index for each image
+    public static String generateFileName(String date, Map<String, Integer> dateImageCount) {
+        int count = dateImageCount.getOrDefault(date, 0) + 1;
+        dateImageCount.put(date, count);
+
+        return "MarsRover_" + date + "_" + count + ".jpg";
     }
 }
-
-
-
-
 
